@@ -13,7 +13,7 @@ export const createProduct = async (req, res) => {
     VALUES(${name},${image},${price})
     RETURNING *`;
     console.log("Created product:", product[0]);
-    res.status(201).json({ success: true, data: newProduct[0] });
+    res.status(201).json({ success: true, data: product[0] });
   } catch (error) {
     res.status(401).json({ success: false, message: "Internal server error." });
   }
