@@ -18,6 +18,7 @@ function App() {
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/product/:id" element={<ProductPage />}></Route>
       </Routes>
+      <Toaster />
     </div>
   );
 }
