@@ -5,6 +5,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { aj } from "./lib/arcjet.js";
 
+import path from "path";
+
 import productRoutes from "./routes/productRoutes.js";
 import { sql } from "./config/db.js";
 
@@ -12,10 +14,11 @@ dotenv.config();
 
 const app = express();
 const PORT = parseInt(process.env.PORT) || 3000;
+const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(cors());
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan("dev"));
 
 // apply arcjet rate-limit to all routes
@@ -55,6 +58,15 @@ app.use(async (req, res, next) => {
 
 app.use("/api/products", productRoutes);
 
+if (process.env.NODE_ENV === "production") {
+  //serve the react app
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 async function initDB() {
   try {
     await sql` 
@@ -72,5 +84,3 @@ async function initDB() {
 initDB().then(() => {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });
-
-//postgresql://neondb_owner:npg_ajD1lqcg4Kpd@ep-late-meadow-a8g9ej4r-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
